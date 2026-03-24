@@ -1,5 +1,5 @@
 services:
-  # Backend Service
+  # Backend Service (Node.js on Render)
   - type: web
     name: decoraai-backend
     env: node
@@ -9,12 +9,16 @@ services:
     envVars:
       - key: PORT
         value: 5000
+      - key: SUPABASE_URL
+        sync: false # Set in Render dashboard: https://your-project.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Set in Render dashboard (from Supabase > Settings > API > service_role)
       - key: TRIPO_API_KEY
-        sync: false # Set in Render dashboard
-      - key: MONGODB_URI
-        sync: false # Set in Render dashboard
+        sync: false # Set in Render dashboard (from https://platform.tripo3d.ai)
+      - key: FRONTEND_URL
+        sync: false # Set in Render dashboard: https://your-app.netlify.app
 
-  # Frontend Service (if using Render for frontend)
+  # Frontend Service (Static site — Netlify is preferred; use this if deploying on Render)
   - type: static
     name: decoraai-frontend
     env: static
@@ -23,4 +27,8 @@ services:
     publishDir: dist
     envVars:
       - key: VITE_API_URL
-        sync: false # Set to the backend URL above
+        sync: false # Set to your backend Render URL e.g. https://decoraai-backend.onrender.com
+      - key: VITE_SUPABASE_URL
+        sync: false # Set to: https://your-project.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false # Set in dashboard (from Supabase > Settings > API > anon key)

@@ -27,6 +27,7 @@ function Loader() {
 export default function ARView() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();   // ← Hooks must be at component level
   const [modelUrl, setModelUrl] = useState(null);
   const [isGenerating, setIsGenerating] = useState(true);
   const videoRef = useRef(null);
@@ -112,7 +113,6 @@ export default function ARView() {
 
   // Fetch 3D model whenever prompt changes
   useEffect(() => {
-    const { user } = useAuth();
     const fetchModel = async () => {
       try {
         if (!user) return;
