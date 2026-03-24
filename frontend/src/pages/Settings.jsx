@@ -69,7 +69,7 @@ export default function Settings() {
       </section>
 
       <footer style={{ marginTop: '4rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>DecoraAI v2.4.0 — Powered by Supabase & Gemini</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>DecoraAI v2.4.0</p>
       </footer>
     </div>
   );
