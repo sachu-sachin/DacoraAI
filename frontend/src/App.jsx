@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import DesignInput from './pages/DesignInput';
@@ -18,6 +18,7 @@ const ProtectedRoute = ({ children }) => {
 
 function AppLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isAuthPage = location.pathname === '/login';
   const isARView = location.pathname === '/ar-view';
@@ -38,11 +39,14 @@ function AppLayout({ children }) {
       <Sidebar />
       <main className="main-content">
         <header className="top-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', fontWeight: 600, fontSize: '0.95rem' }}>
-            <span>{pageTitle}</span>
+          <div className="header-logo" onClick={() => navigate('/dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <div style={{ width: 32, height: 32, background: 'var(--accent-blue)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+               <Box size={20} color="white" />
+            </div>
+            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', letterSpacing: '-0.02em' }}>DecoraAI</span>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="header-actions mobile-hidden" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div className="search-bar">
               <Search size={15} color="var(--text-muted)" />
               <input type="text" placeholder="Search..." />
