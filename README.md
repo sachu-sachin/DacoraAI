@@ -1,48 +1,68 @@
 # DecoraAI - AI-Powered WebAR Interior Design Studio
 
-DecoraAI is an advanced web-based prototype designed to merge Generative AI (Text-to-3D) with Augmented Reality (WebXR) for real-time interior design visualization directly in the browser. 
+DecoraAI is a state-of-the-art web application that leverages Generative AI and Augmented Reality (WebXR) to revolutionize interior design. Transform your space by generating custom 3D furniture from text prompts, analyzing room layouts with Gemini Vision, and visualizing designs in your real-world environment.
 
-This repository contains both a React (Vite) Frontend and a Node.js/Express Backend connected to MongoDB, successfully fulfilling the architecture specified in the DecoraAI research methodology.
+## 🚀 Key Features
 
-## Features Implemented
-1. **AI-Based Text-to-3D Generation:** Connects to Tripo3D V2 API to dynamically generate `.glb` files from natural language prompts. *(Fallback to mockup meshes enabled if API returns 'Insufficient Credits')*.
-2. **Photo/Camera Design Recommendation:** Smart Chat component utilizing an invisible HTML5 canvas to natively detect room dominant hex colors and relative luminance to automatically propose tailored furniture.
-3. **Live Camera Background & AR:** Employs `navigator.mediaDevices.getUserMedia` for desktop "window" AR, and `@react-three/xr` `createXRStore` for native device Augmented Reality.
-4. **Interactive Object Manipulation:** Integration of Drei `<PivotControls>` to translate, scale, and rotate objects accurately within physical spaces.
-5. **Smart Environment Detection:** Native WebXR Hit-Testing requested on the store, supplemented by dynamic `<ContactShadows>` for realistic flooring occlusion.
+*   **Google OAuth Authentication:** Secure, frictionless login using Supabase and Gmail.
+*   **AI Text-to-3D Generation:** Powered by **Tripo3D API** to create high-quality `.glb` models from natural language descriptions.
+*   **Gemini Vision AI Chat:** Intelligent interior design assistant using **Google Gemini 2.0 Flash** to analyze uploaded room photos and suggest tailored improvements.
+*   **Persistent 3D Library:** Manage your generated models in a personal gallery. Models are stored permanently in **Supabase Storage**.
+*   **Real-time AR Visualization:** Integrated **WebXR (Hit-Testing)** for placing and manipulating 3D objects with realistic persistence and contact shadows.
+*   **Interactive Controls:** Rotate, scale, and move 3D models within your space using high-precision pivot controls.
+*   **AR Snapshots:** Capture beautiful screenshots of your furniture designs overlaid on your real room.
 
-## Technology Stack
-- **Frontend:** React 19, Vite, `@react-three/fiber` (v9), `@react-three/drei`, `@react-three/xr` (v6), React Router, Lucide React icons.
-- **Backend:** Node.js, Express, Mongoose (MongoDB).
-- **External AI:** Tripo3D API (Text-to-3D generation pipelines).
+## 🛠️ Technology Stack
 
-## Setup Instructions
-### 1. Install Dependencies
-```bash
-# In the frontend directory
-npm install
+*   **Frontend:** React (Vite), `@react-three/fiber`, `@react-three/xr`, Supabase-js, Lucide Icons, React-Markdown.
+*   **Backend:** Node.js, Express, Supabase Admin SDK.
+*   **Database & Auth:** Supabase (PostgreSQL, Row Level Security, Google Auth).
+*   **Storage:** Supabase Storage (Bucket: `models`) for permanent 3D asset persistence.
+*   **AI Engines:** Tripo3D (3D Models) & Google Gemini (Vision/Chat).
 
-# In the backend directory
-npm install
+## 📦 Setup & Installation
+
+### 1. Prerequisites
+- Node.js 20+
+- A Supabase Project
+- Tripo3D API Key
+- Google Gemini API Key
+
+### 2. Environment Configuration
+
+#### Frontend (`frontend/.env`)
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_API_URL=http://localhost:5000
+VITE_GEMINI_API_KEY=your_gemini_key
 ```
 
-### 2. Configure Environment Variables
-In the `backend/` directory, create a `.env` file (if not present) to house dynamic keys:
+#### Backend (`backend/.env`)
 ```env
 PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/decoraai
-TRIPO_API_KEY=your_tripo3d_key_here
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+TRIPO_API_KEY=your_tripo_key
+FRONTEND_URL=http://localhost:5173
 ```
-*(Note: In the current server.js, the API key is hardcoded as a fallback mechanism. Be sure to replace it when injecting real credits).*
 
-### 3. Run the Servers
+### 3. Database Initializatiton
+Run the provided `supabase_schema.sql` in your Supabase SQL Editor to set up the necessary tables (`profiles`, `generated_models`) and Storage bucket policies.
+
+### 4. Run Locally
 ```bash
-# Start backend (Port 5000)
-node server.js
+# In the root directory
+# Run Backend
+cd backend && npm install && npm start
 
-# Start frontend (Port 5173 default)
-npm run dev
+# In a new terminal, run Frontend
+cd frontend && npm install && npm run dev
 ```
 
-## Troubleshooting Note
-If you are testing on Desktop using the **WebXR API Emulator** Chrome Extension, ensure you DO NOT pass `requiredFeatures: ['hit-test']` to `createXRStore()`, as the Chrome extension's outdated injected materials will crash the modern WebGL 2.0 Renderer (`material.onBuild is not a function`). Hit-testing works natively on Android/iOS without issue.
+## 🌐 Deployment
+- **Backend:** Optimized for **Render** (via `render.yaml`).
+- **Frontend:** Optimized for **Netlify** (via `netlify.toml`).
+
+---
+Designed with ❤️ for modern interior enthusiasts.

@@ -5,8 +5,9 @@ import DesignInput from './pages/DesignInput';
 import Library from './pages/Library';
 import Login from './pages/Login';
 import ARView from './pages/ARView';
+import Settings from './pages/Settings';
 import { useAuth } from './context/AuthContext';
-import { LayoutDashboard, MessageSquare, Box, Settings, Search, Bell } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Box, Settings as SettingsIcon, Search, Bell } from 'lucide-react';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ function AppLayout({ children }) {
     '/dashboard': '♥ Welcome back!',
     '/library': 'My 3D Model Library',
     '/design': 'AI Design Assistant',
+    '/settings': 'Account Settings',
   }[location.pathname] || '';
 
   return (
@@ -82,6 +84,12 @@ function App() {
           <Route path="/library" element={
             <ProtectedRoute>
               <Library />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           } />
           

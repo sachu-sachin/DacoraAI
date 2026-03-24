@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
-import { Move, RotateCcw, Maximize, Trash2, Box, MessageSquare, Settings, User, Image, ArrowLeft } from 'lucide-react';
+import { Move, RotateCcw, Maximize, Trash2, Box, MessageSquare, Settings, User, Image, ArrowLeft, Camera, GripVertical } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, Html, Center, PivotControls, ContactShadows } from '@react-three/drei';
@@ -42,6 +42,7 @@ export default function ARView() {
   const [resetKey, setResetKey] = useState(0);
   const [modelRotation, setModelRotation] = useState([0, 0, 0]);
   const [modelScale, setModelScale] = useState(1.0);
+  const [showGuidelines, setShowGuidelines] = useState(true);
 
   // Prompt → matching demo GLB when Tripo has no credits
   const DEMO_MODELS = {
@@ -151,24 +152,34 @@ export default function ARView() {
     const glCanvas = document.querySelector('#canvas-container canvas');
     if (!glCanvas) return;
 
-    // Composite: draw video frame first, then WebGL canvas on top
-    const offscreen = document.createElement('canvas');
-    offscreen.width = glCanvas.width || window.innerWidth;
-    offscreen.height = glCanvas.height || window.innerHeight;
-    const ctx = offscreen.getContext('2d');
+    // Temporarily hide guidelines during capture
+    const wasShowing = showGuidelines;
+    setShowGuidelines(false);
 
-    // 1. Draw live camera frame as background
-    if (videoRef.current && videoRef.current.readyState >= 2) {
-      ctx.drawImage(videoRef.current, 0, 0, offscreen.width, offscreen.height);
-    }
-    // 2. Overlay the 3D canvas (preserveDrawingBuffer must be true — set via gl prop on Canvas)
-    ctx.drawImage(glCanvas, 0, 0, offscreen.width, offscreen.height);
+    // Wait for a frame to ensure React-Three-Fiber hides guidelines
+    setTimeout(async () => {
+      // Composite: draw video frame first, then WebGL canvas on top
+      const offscreen = document.createElement('canvas');
+      offscreen.width = glCanvas.width || window.innerWidth;
+      offscreen.height = glCanvas.height || window.innerHeight;
+      const ctx = offscreen.getContext('2d');
 
-    const dataUrl = offscreen.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = `DecoraAI_AR_${Date.now()}.png`;
-    link.href = dataUrl;
-    link.click();
+      // 1. Draw live camera frame as background
+      if (videoRef.current && videoRef.current.readyState >= 2) {
+        ctx.drawImage(videoRef.current, 0, 0, offscreen.width, offscreen.height);
+      }
+      // 2. Overlay the 3D canvas
+      ctx.drawImage(glCanvas, 0, 0, offscreen.width, offscreen.height);
+
+      const dataUrl = offscreen.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `DecoraAI_AR_${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+
+      // Restore guidelines after capture
+      setShowGuidelines(wasShowing);
+    }, 100);
   };
 
   return (
@@ -355,19 +366,25 @@ export default function ARView() {
             <Suspense fallback={<Loader />}>
               <Center>
                 {modelUrl && (
-                  <PivotControls 
-                    key={resetKey}
-                    activeAxes={[true, true, true]} 
-                    scale={1.5} 
-                    anchor={[0, -1, 0]}
-                    depthTest={false}
-                    lineWidth={4}
-                    axisColors={['#ff4a4a', '#2ca47e', '#3b82f6']}
-                  >
+                  showGuidelines ? (
+                    <PivotControls 
+                      key={resetKey}
+                      activeAxes={[true, true, true]} 
+                      scale={1.5} 
+                      anchor={[0, -1, 0]}
+                      depthTest={false}
+                      lineWidth={4}
+                      axisColors={['#ff4a4a', '#2ca47e', '#3b82f6']}
+                    >
+                      <group rotation={modelRotation} scale={modelScale}>
+                        <Model url={modelUrl} />
+                      </group>
+                    </PivotControls>
+                  ) : (
                     <group rotation={modelRotation} scale={modelScale}>
                       <Model url={modelUrl} />
                     </group>
-                  </PivotControls>
+                  )
                 )}
                 <ContactShadows position={[0, -1.05, 0]} opacity={0.65} scale={10} blur={2.5} far={4} />
               </Center>
@@ -405,10 +422,31 @@ export default function ARView() {
         ))}
       </div>
 
-      {/* Capture Button */}
-      <button onClick={captureSnapshot} className="btn-primary ar-capture-btn">
-        <Image size={16} /> <span>Capture</span>
-      </button>
+      {/* Mobile-Friendly Control Toolbar — Bottom Center */}
+      <div style={{ position: 'absolute', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+        <button 
+          onClick={() => setShowGuidelines(!showGuidelines)} 
+          className="btn-secondary" 
+          style={{ 
+            height: 48, width: 48, borderRadius: '50%', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: showGuidelines ? 'rgba(37, 99, 235, 0.4)' : 'rgba(0,0,0,0.4)',
+            borderColor: showGuidelines ? 'var(--accent-blue)' : 'rgba(255,255,255,0.2)',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.5)', padding: 0, backdropFilter: 'blur(10px)'
+          }}
+          title={showGuidelines ? "Hide Guidelines" : "Show Guidelines"}
+        >
+          <GripVertical size={20} color={showGuidelines ? 'var(--accent-blue)' : 'white'} />
+        </button>
+
+        <button onClick={captureSnapshot} className="btn-primary" style={{ height: 60, width: 60, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.6)', padding: 0 }}>
+          <Camera size={28} />
+        </button>
+
+        <button onClick={() => setResetKey(k => k + 1)} className="btn-secondary" style={{ height: 48, width: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.5)', padding: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', borderColor: 'rgba(255,255,255,0.2)' }}>
+          <RotateCcw size={20} />
+        </button>
+      </div>
 
     </div>
   );

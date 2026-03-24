@@ -818,3 +818,145 @@ input::placeholder, textarea::placeholder {
     padding: 6px 10px !important;
   }
 }
+/* =====================
+   Modern Mobile Overhaul (v2)
+   ===================== */
+@media (max-width: 900px) {
+  .login-page-v2 {
+    flex-direction: column !important;
+  }
+  .login-hero-panel {
+    display: none !important;
+  }
+  .login-form-panel {
+    flex: 1 !important;
+    padding: 2rem 1.5rem !important;
+  }
+  .login-card {
+    max-width: 100% !important;
+  }
+}
+
+.login-page-v2 {
+  display: flex;
+  height: 100dvh;
+  background-color: #0d1117;
+}
+
+.login-hero-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.hero-image-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  background-image: url("https://images.unsplash.com/photo-1595526114101-23b5bf598bef?auto=format&fit=crop&q=80");
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-content {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 3rem;
+}
+
+.login-form-panel {
+  flex: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+.brand-logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--accent-blue);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-name-text {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+}
+
+.google-auth-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background-color: white;
+  color: #000;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.google-auth-button:hover {
+  transform: translateY(-2px);
+}
+
+.welcome-text {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle-text {
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+}
+
+.legal-footer {
+  margin-top: 2rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* Sidebar Responsive Fix */
+@media (max-width: 768px) {
+  .sidebar {
+    height: 72px !important;
+  }
+  .nav-item {
+    font-size: 0.62rem !important;
+    gap: 2px !important;
+  }
+  .nav-item svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}

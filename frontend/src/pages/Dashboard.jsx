@@ -50,7 +50,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', gap: '1.25rem', overflowX: 'auto', paddingBottom: '0.75rem' }}>
           {recentDesigns.length > 0 ? (
             recentDesigns.map((item, i) => (
-              <div key={i} style={{ minWidth: '200px', cursor: 'pointer', flexShrink: 0 }} onClick={() => navigate('/ar-view', { state: { prompt: item.prompt } })}>
+              <div key={i} style={{ minWidth: '200px', cursor: 'pointer', flexShrink: 0 }} onClick={() => navigate('/ar-view', { state: { prompt: item.prompt, modelUrl: item.model_url, fromLibrary: true } })}>
                 <div style={{
                   width: '100%', height: '130px',
                   backgroundColor: '#151b29',
@@ -59,7 +59,7 @@ export default function Dashboard() {
                   border: '1px solid var(--border-color)',
                   overflow: 'hidden'
                  }}>
-                  {(item.thumbnail || item.modelUrl) ? (
+                  {(item.thumbnail || item.model_url) ? (
                     <img src={item.thumbnail || 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&h=250&fit=crop'} alt="Room" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : <Box size={32} color="var(--text-muted)" />}
                 </div>
