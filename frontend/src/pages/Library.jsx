@@ -7,7 +7,7 @@ export default function Library() {
   const [models, setModels] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/designs')
+    fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/designs` : 'http://localhost:5000/api/designs')
       .then(res => res.json())
       .then(data => setModels(data.designs || []))
       .catch(err => console.error(err));

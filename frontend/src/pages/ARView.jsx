@@ -113,7 +113,8 @@ export default function ARView() {
     const fetchModel = async () => {
       try {
         setIsGenerating(true);
-        const response = await fetch('http://localhost:5000/api/ai/generate-3d', {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/ai/generate-3d`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt })
@@ -148,7 +149,8 @@ export default function ARView() {
     link.click();
 
     try {
-      await fetch('http://localhost:5000/api/screenshot', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      await fetch(`${apiUrl}/api/screenshot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: dataUrl })

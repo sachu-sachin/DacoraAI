@@ -11,7 +11,11 @@ const PORT = process.env.PORT || 5000;
 // Hardcoded for demonstration based on user prompt
 const TRIPO_API_KEY = 'tsk_wRD5rogLqxl8aoHR7f6-ZM4DcHZFmJxbyMHugzESEYH';
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json());
 
 // MongoDB models
@@ -22,10 +26,11 @@ const designSchema = new mongoose.Schema({
 });
 const Design = mongoose.model('Design', designSchema);
 
-// Optional DB connection (Graceful fallback)
-mongoose.connect('mongodb://127.0.0.1:27017/decoraai')
-  .then(() => console.log('✅ Connected to MongoDB local data store'))
-  .catch(err => console.log('⚠️ MongoDB connection failed, using in-memory store fallback. Error:', err.message));
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/decoraai';
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.log('⚠️ MongoDB connection failed. Error:', err.message));
 
 let memoryStore = [];
 
