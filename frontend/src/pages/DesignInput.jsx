@@ -45,6 +45,8 @@ Keep your response concise, practical, and enthusiastic. Format with clear numbe
     || "I couldn't analyze the image. Please try again.";
 }
 
+import ReactMarkdown from 'react-markdown';
+
 export default function DesignInput() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -181,7 +183,9 @@ export default function DesignInput() {
                   <strong style={{ fontSize: '0.9rem', color: 'white' }}>DecoraAI</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{msg.time}</span>
                 </div>
-                <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.92rem', whiteSpace: 'pre-wrap' }}>{msg.text}</div>
+                <div className="markdown-content" style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.92rem' }}>
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                </div>
               </div>
             )}
             {msg.sender === 'user' && (

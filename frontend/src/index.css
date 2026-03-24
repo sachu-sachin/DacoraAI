@@ -145,6 +145,50 @@ input::placeholder, textarea::placeholder {
   flex-shrink: 0;
 }
 
+/* Markdown Content Styling for AI Chat */
+.markdown-content p {
+  margin-bottom: 1rem;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  color: white;
+  margin: 1.5rem 0 0.75rem 0;
+  font-weight: 600;
+}
+
+.markdown-content h1 { font-size: 1.4rem; }
+.markdown-content h2 { font-size: 1.25rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content strong {
+  color: white;
+  font-weight: 600;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid var(--accent-blue);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Sidebar Footer & User Profile */
 .sidebar-footer {
   margin-top: auto;
