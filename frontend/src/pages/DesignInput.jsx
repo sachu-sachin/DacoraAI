@@ -27,7 +27,6 @@ export default function DesignInput() {
   const handleSend = () => {
     if (!prompt.trim()) return;
 
-    // Add user message
     const newMsg = {
       id: Date.now(),
       sender: 'user',
@@ -39,7 +38,6 @@ export default function DesignInput() {
     setPrompt('');
     setIsTyping(true);
 
-    // AI Contextual Response
     setTimeout(() => {
       setIsTyping(false);
       setMessages(prev => [...prev, {
@@ -57,7 +55,6 @@ export default function DesignInput() {
 
     const imageUrl = URL.createObjectURL(file);
     
-    // Add User Image Message
     setMessages(prev => [...prev, {
       id: Date.now(),
       sender: 'user',
@@ -68,7 +65,6 @@ export default function DesignInput() {
 
     setIsTyping(true);
 
-    // Perform Native Image Analysis (Colors & Lighting)
     const img = new window.Image();
     img.crossOrigin = "Anonymous";
     img.src = imageUrl;
@@ -87,7 +83,6 @@ export default function DesignInput() {
         r += imgData[i];
         g += imgData[i + 1];
         b += imgData[i + 2];
-        // Standard relative luminance formula
         luminance += (0.299 * imgData[i] + 0.587 * imgData[i + 1] + 0.114 * imgData[i + 2]);
       }
 
@@ -127,59 +122,58 @@ export default function DesignInput() {
   const handleGenerate = () => {
     const lastUserMsg = [...messages].reverse().find(m => m.sender === 'user' && !m.isImage);
     const targetPrompt = prompt || (lastUserMsg ? lastUserMsg.text : "A modern chair");
-    console.log("Navigating to AR View for generation:", targetPrompt);
     navigate('/ar-view', { state: { prompt: targetPrompt } });
   };
   
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', gap: '0.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - var(--header-height))' }}>
+      {/* Header actions */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0.75rem 1.5rem', borderBottom: '1px solid var(--border-color)', gap: '0.5rem' }}>
          <button onClick={() => setMessages([messages[0]])} style={{ width: 36, height: 36, backgroundColor: 'var(--bg-panel)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><RotateCcw size={18} color="white" /></button>
          <button style={{ width: 36, height: 36, backgroundColor: 'var(--bg-panel)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PlusSquare size={18} color="white" /></button>
          <button style={{ width: 36, height: 36, backgroundColor: 'var(--bg-panel)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><HelpCircle size={18} color="white" /></button>
       </div>
 
       {/* Chat Area */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '2rem 15%', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div className="chat-area" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 5%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {messages.map(msg => (
-          <div key={msg.id} style={{ display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start', gap: '1rem' }}>
+          <div key={msg.id} style={{ display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start', gap: '0.75rem', alignItems: 'flex-start' }}>
             {msg.sender === 'ai' && (
-              <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#2ca47e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                 <Box size={20} color="white" />
+              <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#2ca47e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                 <Box size={18} color="white" />
               </div>
             )}
             
             {msg.sender === 'user' ? (
-              <div style={{ backgroundColor: 'var(--accent-blue)', color: 'white', padding: '1rem 1.5rem', borderRadius: '16px', borderTopRightRadius: '0px', maxWidth: '80%', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                 {msg.isImage ? <img src={msg.url} alt="Uploaded Room" style={{ maxWidth: '300px', borderRadius: '8px' }} /> : msg.text}
+              <div style={{ backgroundColor: 'var(--accent-blue)', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '16px', borderTopRightRadius: '0px', maxWidth: '80%', fontSize: '0.92rem', lineHeight: 1.5 }}>
+                 {msg.isImage ? <img src={msg.url} alt="Uploaded Room" style={{ maxWidth: '100%', borderRadius: '8px' }} /> : msg.text}
               </div>
             ) : (
               <div style={{ flex: 1, maxWidth: '80%' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '8px' }}>
-                   <strong style={{ fontSize: '0.95rem', color: 'white' }}>DecoraAI</strong>
-                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{msg.time}</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '6px' }}>
+                   <strong style={{ fontSize: '0.9rem', color: 'white' }}>DecoraAI</strong>
+                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{msg.time}</span>
                 </div>
-                <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem', marginBottom: '1rem', whiteSpace: 'pre-wrap' }}>
+                <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.92rem', whiteSpace: 'pre-wrap' }}>
                   {msg.text}
                 </div>
               </div>
             )}
             
             {msg.sender === 'user' && (
-              <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                 <strong style={{ color: 'white', fontSize: '1rem' }}>U</strong>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                 <strong style={{ color: 'white', fontSize: '0.9rem' }}>U</strong>
               </div>
             )}
           </div>
         ))}
         {isTyping && (
-           <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '1rem' }}>
-              <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#2ca47e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                 <Box size={20} color="white" />
+           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#2ca47e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                 <Box size={18} color="white" />
               </div>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic', display: 'flex', alignItems: 'center' }}>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
                  DecoraAI is analyzing...
               </div>
            </div>
@@ -188,31 +182,31 @@ export default function DesignInput() {
       </div>
 
       {/* Input Area */}
-      <div style={{ padding: '1.5rem 15%', backgroundColor: 'var(--bg-main)', borderTop: '1px solid var(--border-color)' }}>
-         <div style={{ display: 'flex', gap: '1rem', backgroundColor: 'var(--bg-input)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '8px 16px', marginBottom: '1rem' }}>
+      <div className="chat-input-area" style={{ padding: '1rem 5%', backgroundColor: 'var(--bg-main)', borderTop: '1px solid var(--border-color)' }}>
+         <div style={{ display: 'flex', gap: '0.75rem', backgroundColor: 'var(--bg-input)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '8px 14px', marginBottom: '0.75rem' }}>
             <input 
               type="text" 
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Describe the furniture you want to see..." 
-              style={{ backgroundColor: 'transparent', border: 'none', flex: 1, padding: '8px 0', color: 'white', outline: 'none' }}
+              style={{ backgroundColor: 'transparent', border: 'none', flex: 1, padding: '6px 0', color: 'white', outline: 'none', fontSize: '0.92rem' }}
             />
-            <button onClick={handleSend} className="flex-center" style={{ backgroundColor: 'var(--accent-blue)', width: 36, height: 36, borderRadius: 8, cursor: 'pointer', border: 'none' }}>
-              <Send size={16} color="white" />
+            <button onClick={handleSend} className="flex-center" style={{ backgroundColor: 'var(--accent-blue)', width: 34, height: 34, borderRadius: 8, cursor: 'pointer', border: 'none', flexShrink: 0 }}>
+              <Send size={15} color="white" />
             </button>
          </div>
          
-         <div style={{ display: 'flex', gap: '1rem' }}>
-            <button onClick={handleGenerate} className="btn-secondary flex-center" style={{ gap: '8px', padding: '10px 16px', cursor: 'pointer', color: 'var(--accent-blue)', borderColor: 'var(--accent-blue)' }}>
-               <Wand2 size={16} /> Generate 3D Model
+         <div className="chat-action-buttons" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button onClick={handleGenerate} className="btn-secondary flex-center" style={{ gap: '6px', padding: '9px 14px', cursor: 'pointer', color: 'var(--accent-blue)', borderColor: 'var(--accent-blue)', flex: '1 1 auto', fontSize: '0.88rem' }}>
+               <Wand2 size={15} /> Generate 3D Model
             </button>
-            <button onClick={handleSuggest} className="btn-secondary flex-center" style={{ gap: '8px', padding: '10px 16px', cursor: 'pointer' }}>
-               <Sparkles size={16} /> Suggest Designs
+            <button onClick={handleSuggest} className="btn-secondary flex-center" style={{ gap: '6px', padding: '9px 14px', cursor: 'pointer', flex: '1 1 auto', fontSize: '0.88rem' }}>
+               <Sparkles size={15} /> Suggest Designs
             </button>
             <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" style={{ display: 'none' }} />
-            <button onClick={() => fileInputRef.current.click()} className="btn-secondary flex-center" style={{ gap: '8px', padding: '10px 16px', cursor: 'pointer' }}>
-               <UploadCloud size={16} /> Upload Image
+            <button onClick={() => fileInputRef.current.click()} className="btn-secondary flex-center" style={{ gap: '6px', padding: '9px 14px', cursor: 'pointer', flex: '1 1 auto', fontSize: '0.88rem' }}>
+               <UploadCloud size={15} /> Upload Image
             </button>
          </div>
       </div>

@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Hardcoded for demonstration based on user prompt
-const TRIPO_API_KEY = 'tsk_nVYWlRH2I3IgphK_Un92EUPiSId30Z4_2y6PMLFkjgJ';
+const TRIPO_API_KEY = 'tsk_wRD5rogLqxl8aoHR7f6-ZM4DcHZFmJxbyMHugzESEYH';
 
 app.use(cors());
 app.use(express.json());
@@ -39,19 +39,29 @@ app.post('/api/ai/generate-3d', async (req, res) => {
   console.log(`[AI] Starting Tripo3D Generation for prompt: "${prompt}"`);
 
   try {
-    // 1. Submit task
+    // 1. Submit task with correct payload per Tripo3D API docs
     const submitRes = await fetch('https://api.tripo3d.ai/v2/openapi/task', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${TRIPO_API_KEY}`
       },
-      body: JSON.stringify({ type: 'text_to_model', prompt })
+      body: JSON.stringify({
+        type: 'text_to_model',
+        prompt: `${prompt}, high quality, detailed, realistic furniture`,
+        negative_prompt: 'low quality, blurry, distorted, broken geometry'
+      })
     });
 
     const submitData = await submitRes.json();
     if (submitData.code !== 0) {
-      throw new Error(`Tripo submission failed: ${JSON.stringify(submitData)}`);
+      console.error('[AI] Tripo error code:', submitData.code, submitData.message);
+      // Return structured error so frontend can use smart fallback
+      return res.json({
+        success: false,
+        error: submitData.message,
+        code: submitData.code
+      });
     }
 
     const taskId = submitData.data.task_id;
@@ -71,7 +81,11 @@ app.post('/api/ai/generate-3d', async (req, res) => {
       const pollData = await pollRes.json();
       
       if (pollData.data.status === 'success') {
-        completedUrl = pollData.data.result.model.url; // Usually contains a .glb URL
+        // Confirmed real response structure from live API:
+        // data.result.pbr_model.url  (PBR GLB — highest quality)
+        // data.result.model.url      (standard GLB — fallback)
+        const result = pollData.data.result;
+        completedUrl = result?.pbr_model?.url || result?.model?.url;
         console.log(`[AI] Task completed! URL: ${completedUrl}`);
         break;
       } else if (pollData.data.status === 'failed') {
@@ -103,13 +117,9 @@ app.post('/api/ai/generate-3d', async (req, res) => {
 
   } catch (error) {
     console.error('[AI] Generation Error:', error.message);
-    // Fallback to placeholder if API fails
     res.json({
-      success: true,
-      prompt,
-      modelUrl: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SheenChair/glTF-Binary/SheenChair.glb',
-      status: 'fallback',
-      message: 'Failed to access AI. Returned fallback model.'
+      success: false,
+      error: error.message
     });
   }
 });

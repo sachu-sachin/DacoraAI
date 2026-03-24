@@ -11,13 +11,14 @@ export default function Login() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#0d1117' }}>
-      {/* Left Image Section */}
-      <div 
-        style={{ 
-          flex: '0.9', 
-          padding: '24px', 
-          display: 'flex', 
+    <div style={{ display: 'flex', height: '100dvh', backgroundColor: '#0d1117' }}>
+      {/* Left Image Section - hidden on mobile via CSS */}
+      <div
+        className="login-hero"
+        style={{
+          flex: '0.9',
+          padding: '24px',
+          display: 'flex',
           flexDirection: 'column'
         }}
       >
@@ -30,7 +31,6 @@ export default function Login() {
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}>
-          {/* Internal Gradient Overlay */}
           <div style={{
             position: 'absolute',
             bottom: 0,
@@ -49,8 +49,8 @@ export default function Login() {
       </div>
 
       {/* Right Login Section */}
-      <div style={{ flex: '1.1', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <motion.div 
+      <div className="login-form-wrapper" style={{ flex: '1.1', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', overflowY: 'auto' }}>
+        <motion.div
           style={{ width: '100%', maxWidth: '380px' }}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -66,7 +66,6 @@ export default function Login() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem', fontSize: '0.95rem' }}>Log in to continue to DecoraAI</p>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 500 }}>Email Address</label>
               <input type="email" placeholder="you@example.com" required style={{ backgroundColor: '#161b26' }} />
@@ -83,11 +82,11 @@ export default function Login() {
               </div>
             </div>
 
-            <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem' }}>
+            <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem', width: '100%' }}>
               Log In
             </button>
-            
-            <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+
+            <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
               <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
               <span style={{ padding: '0 12px' }}>or</span>
               <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
@@ -104,10 +103,9 @@ export default function Login() {
                </button>
             </div>
 
-            <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+            <p style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
               Don't have an account? <Link to="#" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>Sign up</Link>
             </p>
-
           </form>
         </motion.div>
       </div>

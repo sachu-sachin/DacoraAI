@@ -15,7 +15,7 @@ export default function Library() {
 
   return (
     <div className="page-container">
-      <div className="flex-between" style={{ marginBottom: '1.5rem' }}>
+      <div className="flex-between" style={{ marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <h2 className="title" style={{ margin: 0 }}>My 3D Model Library</h2>
         <button onClick={() => navigate('/design')} className="btn-primary flex-center" style={{ gap: '0.5rem' }}>
           <Plus size={18} /> Add New Model
@@ -31,22 +31,22 @@ export default function Library() {
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem' }}>
-        <button className="btn-secondary flex-center" style={{ padding: '8px 16px', gap: '8px' }}>
-          Room Type <ChevronDown size={16} />
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', overflowX: 'auto', paddingBottom: '0.5rem', flexWrap: 'wrap' }}>
+        <button className="btn-secondary flex-center" style={{ padding: '8px 14px', gap: '6px', flexShrink: 0 }}>
+          Room Type <ChevronDown size={15} />
         </button>
-        <button className="btn-secondary flex-center" style={{ padding: '8px 16px', gap: '8px' }}>
-          Style <ChevronDown size={16} />
+        <button className="btn-secondary flex-center" style={{ padding: '8px 14px', gap: '6px', flexShrink: 0 }}>
+          Style <ChevronDown size={15} />
         </button>
-        <button className="btn-secondary flex-center" style={{ padding: '8px 16px', gap: '8px' }}>
-          Date Created <ChevronDown size={16} />
+        <button className="btn-secondary flex-center" style={{ padding: '8px 14px', gap: '6px', flexShrink: 0 }}>
+          Date Created <ChevronDown size={15} />
         </button>
-        <button className="btn-secondary flex-center" style={{ padding: '8px 16px', gap: '8px', color: 'var(--accent-blue)', borderColor: 'var(--accent-blue)' }}>
-          <Heart size={16} fill="var(--accent-blue)" /> My Favorites
+        <button className="btn-secondary flex-center" style={{ padding: '8px 14px', gap: '6px', flexShrink: 0, color: 'var(--accent-blue)', borderColor: 'var(--accent-blue)' }}>
+          <Heart size={15} fill="var(--accent-blue)" /> My Favorites
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
         {models.map((model, i) => (
           <div key={i} style={{ cursor: 'pointer' }} onClick={() => navigate('/ar-view', { state: { prompt: model.prompt } })}>
             <div style={{ 

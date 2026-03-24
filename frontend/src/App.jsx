@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Link, NavLink } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, MessageSquare, Box, Settings, Search, Bell, Menu } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, useLocation, NavLink } from 'react-router-dom';
+import { LayoutDashboard, FolderOpen, MessageSquare, Box, Settings, Search, Bell } from 'lucide-react';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -7,21 +7,24 @@ import DesignInput from './pages/DesignInput';
 import Library from './pages/Library';
 import ARView from './pages/ARView';
 
-// App Layout with Sidebar and Header
 function AppLayout({ children }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/';
   const isARView = location.pathname === '/ar-view';
 
-  // If it's Login or ARView (which takes full screen usually), we don't show the standard sidebar layout
-  // Wait, in Fig 7, AR View took the whole room except the UI overlays. So yes.
   if (isAuthPage || isARView) {
     return children;
   }
 
+  const pageTitle = {
+    '/dashboard': '♥ Welcome back!',
+    '/library': 'My 3D Model Library',
+    '/design': 'AI Design Assistant',
+  }[location.pathname] || '';
+
   return (
     <div className="app-layout">
-      {/* Sidebar */}
+      {/* Sidebar (converts to bottom nav on mobile via CSS) */}
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-icon">
@@ -33,23 +36,19 @@ function AppLayout({ children }) {
         <nav className="nav-menu">
           <NavLink to="/dashboard" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <LayoutDashboard size={20} />
-            Dashboard
-          </NavLink>
-          <NavLink to="/projects" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-            <FolderOpen size={20} />
-            Projects
+            <span>Dashboard</span>
           </NavLink>
           <NavLink to="/design" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <MessageSquare size={20} />
-            AI Chat
+            <span>AI Chat</span>
           </NavLink>
           <NavLink to="/library" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <Box size={20} />
-            3D Library
+            <span>Library</span>
           </NavLink>
-          <NavLink to="/settings" className={({isActive}) => isActive ? "nav-item active" : "nav-item"} style={{ marginTop: 'auto' }}>
+          <NavLink to="/settings" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <Settings size={20} />
-            Settings
+            <span>Settings</span>
           </NavLink>
         </nav>
 
@@ -65,19 +64,17 @@ function AppLayout({ children }) {
       {/* Main Content */}
       <main className="main-content">
         <header className="top-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', fontWeight: 600 }}>
-            {location.pathname === '/dashboard' && "♥ Welcome back, Rathivarman!"}
-            {location.pathname === '/library' && "My 3D Model Library"}
-            {location.pathname === '/design' && "Living Room Reno"}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', fontWeight: 600, fontSize: '0.95rem', minWidth: 0, overflow: 'hidden' }}>
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pageTitle}</span>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
             <div className="search-bar">
-              <Search size={16} color="var(--text-muted)" />
+              <Search size={15} color="var(--text-muted)" style={{ flexShrink: 0 }} />
               <input type="text" placeholder="Search..." />
             </div>
-            <button style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Bell size={18} color="var(--text-secondary)" />
+            <button style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Bell size={17} color="var(--text-secondary)" />
             </button>
           </div>
         </header>
