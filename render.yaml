@@ -1,0 +1,26 @@
+services:
+  # Backend Service
+  - type: web
+    name: decoraai-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: TRIPO_API_KEY
+        sync: false # Set in Render dashboard
+      - key: MONGODB_URI
+        sync: false # Set in Render dashboard
+
+  # Frontend Service (if using Render for frontend)
+  - type: static
+    name: decoraai-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false # Set to the backend URL above
