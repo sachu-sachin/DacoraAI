@@ -637,8 +637,8 @@ input::placeholder, textarea::placeholder {
 
   /* Header */
   .top-header {
-    padding: 0 1rem;
-    height: var(--header-height);
+    padding: 0 1.5rem;
+    height: 72px; /* Increased height for mobile breathable header */
   }
 
   .search-bar {

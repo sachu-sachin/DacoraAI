@@ -38,9 +38,9 @@ export default function Settings() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
             <Mail size={18} />
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email Address</div>
-              <div style={{ color: 'white' }}>{user?.email}</div>
+              <div style={{ color: 'white', wordBreak: 'break-all' }}>{user?.email}</div>
             </div>
           </div>
 
@@ -63,9 +63,6 @@ export default function Settings() {
       </section>
 
       <section style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
-        <button className="btn-secondary" style={{ flex: 1, minWidth: '200px', justifyContent: 'center', gap: '8px' }}>
-          <Bell size={18} /> Notification Preferences
-        </button>
         <button onClick={handleLogout} className="btn-secondary" style={{ flex: 1, minWidth: '200px', justifyContent: 'center', gap: '8px', color: '#f87171', border: '1px solid rgba(248, 113, 113, 0.2)' }}>
           <LogOut size={18} /> Sign Out
         </button>
