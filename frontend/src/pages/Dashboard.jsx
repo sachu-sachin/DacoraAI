@@ -64,7 +64,7 @@ export default function Dashboard() {
                   ) : <Box size={32} color="var(--text-muted)" />}
                 </div>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 500, color: 'white', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{item.prompt || "Untitled Project"}</h4>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{new Date(item.createdAt).toLocaleDateString()}</p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
               </div>
             ))
           ) : (

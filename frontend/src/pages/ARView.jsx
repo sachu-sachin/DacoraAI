@@ -32,7 +32,9 @@ export default function ARView() {
   const [isGenerating, setIsGenerating] = useState(true);
   const videoRef = useRef(null);
   
-  const [prompt, setPrompt] = useState(location.state?.prompt || "Standard Object");
+  const [prompt, setPrompt] = useState(location.state?.prompt || 'Standard Object');
+  const fromLibrary = location.state?.fromLibrary === true;
+  const savedModelUrl = location.state?.modelUrl || null;
   // 'idle' | 'requesting' | 'active' | 'denied' | 'notfound' | 'https'
   const [cameraState, setCameraState] = useState('idle');
   const [cameraError, setCameraError] = useState(false);
@@ -111,8 +113,13 @@ export default function ARView() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch 3D model whenever prompt changes
+  // Fetch 3D model (skip if coming from Library — use saved URL)
   useEffect(() => {
+    if (fromLibrary && savedModelUrl) {
+      setModelUrl(savedModelUrl);
+      setIsGenerating(false);
+      return;
+    }
     const fetchModel = async () => {
       try {
         if (!user) return;
@@ -130,36 +137,38 @@ export default function ARView() {
           setModelUrl(getDemoModel(prompt));
         }
       } catch (e) {
-        console.error("Backend error:", e);
+        console.error('Backend error:', e);
         setModelUrl(getDemoModel(prompt));
       } finally {
         setIsGenerating(false);
       }
     };
-    
     fetchModel();
   }, [prompt]);
 
 
   const captureSnapshot = async () => {
-    const canvas = document.querySelector('#canvas-container canvas');
-    if (!canvas) return;
+    const glCanvas = document.querySelector('#canvas-container canvas');
+    if (!glCanvas) return;
 
-    const dataUrl = canvas.toDataURL('image/png');
+    // Composite: draw video frame first, then WebGL canvas on top
+    const offscreen = document.createElement('canvas');
+    offscreen.width = glCanvas.width || window.innerWidth;
+    offscreen.height = glCanvas.height || window.innerHeight;
+    const ctx = offscreen.getContext('2d');
+
+    // 1. Draw live camera frame as background
+    if (videoRef.current && videoRef.current.readyState >= 2) {
+      ctx.drawImage(videoRef.current, 0, 0, offscreen.width, offscreen.height);
+    }
+    // 2. Overlay the 3D canvas (preserveDrawingBuffer must be true — set via gl prop on Canvas)
+    ctx.drawImage(glCanvas, 0, 0, offscreen.width, offscreen.height);
+
+    const dataUrl = offscreen.toDataURL('image/png');
     const link = document.createElement('a');
-    link.download = `DecoraAI_Snapshot_${Date.now()}.png`;
+    link.download = `DecoraAI_AR_${Date.now()}.png`;
     link.href = dataUrl;
     link.click();
-
-    try {
-      await fetch(`${API_BASE_URL}/api/screenshot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: dataUrl })
-      });
-    } catch (err) {
-      console.log('Failed to save to backend', err);
-    }
   };
 
   return (
