@@ -1,18 +1,27 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, NavLink } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, MessageSquare, Box, Settings, Search, Bell } from 'lucide-react';
-
-import Login from './pages/Login';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import DesignInput from './pages/DesignInput';
 import Library from './pages/Library';
+import Login from './pages/Login';
 import ARView from './pages/ARView';
+import { useAuth } from './context/AuthContext';
+import { LayoutDashboard, MessageSquare, Box, Settings, Search, Bell } from 'lucide-react';
+
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0d1117', color: 'white' }}>Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
 
 function AppLayout({ children }) {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/';
+  const { user } = useAuth();
+  const isAuthPage = location.pathname === '/login';
   const isARView = location.pathname === '/ar-view';
 
-  if (isAuthPage || isARView) {
+  if (isAuthPage || isARView || !user) {
     return children;
   }
 
@@ -24,61 +33,23 @@ function AppLayout({ children }) {
 
   return (
     <div className="app-layout">
-      {/* Sidebar (converts to bottom nav on mobile via CSS) */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon">
-            <Box size={20} color="white" />
-          </div>
-          DecoraAI
-        </div>
-        
-        <nav className="nav-menu">
-          <NavLink to="/dashboard" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </NavLink>
-          <NavLink to="/design" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-            <MessageSquare size={20} />
-            <span>AI Chat</span>
-          </NavLink>
-          <NavLink to="/library" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-            <Box size={20} />
-            <span>Library</span>
-          </NavLink>
-          <NavLink to="/settings" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-            <Settings size={20} />
-            <span>Settings</span>
-          </NavLink>
-        </nav>
-
-        <div className="user-profile">
-          <div className="avatar"></div>
-          <div>
-            <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>Rathivarman</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>User Profile</div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
+      <Sidebar />
       <main className="main-content">
         <header className="top-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', fontWeight: 600, fontSize: '0.95rem', minWidth: 0, overflow: 'hidden' }}>
-            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pageTitle}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', fontWeight: 600, fontSize: '0.95rem' }}>
+            <span>{pageTitle}</span>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div className="search-bar">
-              <Search size={15} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+              <Search size={15} color="var(--text-muted)" />
               <input type="text" placeholder="Search..." />
             </div>
-            <button style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <button style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--bg-input)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Bell size={17} color="var(--text-secondary)" />
             </button>
           </div>
         </header>
-
         {children}
       </main>
     </div>
@@ -86,15 +57,41 @@ function AppLayout({ children }) {
 }
 
 function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div style={{ height: '100vh', backgroundColor: '#0d1117' }}></div>;
+
   return (
     <Router>
       <AppLayout>
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/design" element={<DesignInput />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/ar-view" element={<ARView />} />
+          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+          
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/design" element={
+            <ProtectedRoute>
+              <DesignInput />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/library" element={
+            <ProtectedRoute>
+              <Library />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/ar-view" element={
+            <ProtectedRoute>
+              <ARView />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
         </Routes>
       </AppLayout>
     </Router>

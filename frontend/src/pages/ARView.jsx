@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, Suspense } from 'react';
+import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import { Move, RotateCcw, Maximize, Trash2, Box, MessageSquare, Settings, User, Image, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
@@ -110,14 +112,15 @@ export default function ARView() {
 
   // Fetch 3D model whenever prompt changes
   useEffect(() => {
+    const { user } = useAuth();
     const fetchModel = async () => {
       try {
+        if (!user) return;
         setIsGenerating(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/ai/generate-3d`, {
+        const response = await fetch(`${API_BASE_URL}/api/ai/generate-3d`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ prompt, user_id: user.id })
         });
         const data = await response.json();
         if (data.success) {
@@ -149,8 +152,7 @@ export default function ARView() {
     link.click();
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      await fetch(`${apiUrl}/api/screenshot`, {
+      await fetch(`${API_BASE_URL}/api/screenshot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: dataUrl })

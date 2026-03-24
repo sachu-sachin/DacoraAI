@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import { Sparkles, Box } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [recentDesigns, setRecentDesigns] = useState([]);
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/designs` : 'http://localhost:5000/api/designs')
+    if (!user) return;
+    fetch(`${API_BASE_URL}/api/designs?user_id=${user.id}`)
       .then(res => res.json())
       .then(data => setRecentDesigns(data.designs || []))
       .catch(err => console.error(err));

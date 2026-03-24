@@ -1,15 +1,23 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Hardcoded for demonstration based on user prompt
-const TRIPO_API_KEY = 'tsk_wRD5rogLqxl8aoHR7f6-ZM4DcHZFmJxbyMHugzESEYH';
+// Supabase Configuration
+const supabaseUrl = 'https://rurbsodgubtzdthhwovi.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Environment Variables
+const TRIPO_API_KEY = process.env.TRIPO_API_KEY;
+if (!TRIPO_API_KEY) {
+  console.warn('⚠️ TRIPO_API_KEY is missing! 3D generation will fail.');
+}
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
@@ -18,33 +26,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// MongoDB models
-const designSchema = new mongoose.Schema({
-  prompt: String,
-  modelUrl: String,
-  createdAt: { type: Date, default: Date.now }
-});
-const Design = mongoose.model('Design', designSchema);
-
-// MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/decoraai';
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.log('⚠️ MongoDB connection failed. Error:', err.message));
-
-let memoryStore = [];
-
 // API Endpoints
-app.get('/api/health', (req, res) => res.json({ status: 'healthy', service: 'DecoraAI Backend' }));
+app.get('/api/health', (req, res) => res.json({ status: 'healthy', service: 'DecoraAI Backend (Supabase)' }));
 
 app.post('/api/ai/generate-3d', async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, user_id } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+  if (!user_id) return res.status(400).json({ error: 'User ID is required' });
 
-  console.log(`[AI] Starting Tripo3D Generation for prompt: "${prompt}"`);
+  console.log(`[AI] Starting Tripo3D Generation for user ${user_id}: "${prompt}"`);
 
   try {
-    // 1. Submit task with correct payload per Tripo3D API docs
     const submitRes = await fetch('https://api.tripo3d.ai/v2/openapi/task', {
       method: 'POST',
       headers: {
@@ -60,90 +52,73 @@ app.post('/api/ai/generate-3d', async (req, res) => {
 
     const submitData = await submitRes.json();
     if (submitData.code !== 0) {
-      console.error('[AI] Tripo error code:', submitData.code, submitData.message);
-      // Return structured error so frontend can use smart fallback
-      return res.json({
-        success: false,
-        error: submitData.message,
-        code: submitData.code
-      });
+      return res.json({ success: false, error: submitData.message, code: submitData.code });
     }
 
     const taskId = submitData.data.task_id;
-    console.log(`[AI] Task submitted successfully. ID: ${taskId}. Waiting for completion...`);
-
-    // 2. Poll for completion (timeout after 2 mins to prevent hanging)
     let completedUrl = null;
     let attempts = 0;
+    
     while (attempts < 60) {
-      await new Promise(resolve => setTimeout(resolve, 3000)); // wait 3s
-      
+      await new Promise(resolve => setTimeout(resolve, 3000));
       const pollRes = await fetch(`https://api.tripo3d.ai/v2/openapi/task/${taskId}`, {
-        headers: {
-          'Authorization': `Bearer ${TRIPO_API_KEY}`
-        }
+        headers: { 'Authorization': `Bearer ${TRIPO_API_KEY}` }
       });
       const pollData = await pollRes.json();
       
       if (pollData.data.status === 'success') {
-        // Confirmed real response structure from live API:
-        // data.result.pbr_model.url  (PBR GLB — highest quality)
-        // data.result.model.url      (standard GLB — fallback)
         const result = pollData.data.result;
         completedUrl = result?.pbr_model?.url || result?.model?.url;
-        console.log(`[AI] Task completed! URL: ${completedUrl}`);
         break;
       } else if (pollData.data.status === 'failed') {
-        throw new Error('Tripo3D task failed during processing.');
+        throw new Error('Tripo3D task failed.');
       }
-      
       attempts++;
     }
 
-    if (!completedUrl) {
-      throw new Error('Generation timed out.');
-    }
+    if (!completedUrl) throw new Error('Generation timed out.');
 
-    // Attempt to save to DB
-    const newDesign = { prompt, modelUrl: completedUrl, createdAt: new Date() };
-    if (mongoose.connection.readyState === 1) {
-      await Design.create(newDesign);
-    } else {
-      memoryStore.push(newDesign);
-    }
+    // Save to Supabase
+    const { data, error } = await supabase
+      .from('generated_models')
+      .insert([
+        { user_id, prompt, model_url: completedUrl }
+      ])
+      .select();
+
+    if (error) throw error;
 
     res.json({
       success: true,
       prompt,
       modelUrl: completedUrl,
-      status: 'completed',
-      message: '3D model generated successfully'
+      status: 'completed'
     });
 
   } catch (error) {
     console.error('[AI] Generation Error:', error.message);
-    res.json({
-      success: false,
-      error: error.message
-    });
+    res.json({ success: false, error: error.message });
   }
 });
 
 app.get('/api/designs', async (req, res) => {
-  if (mongoose.connection.readyState === 1) {
-    const designs = await Design.find().sort({ createdAt: -1 });
-    res.json({ designs });
-  } else {
-    res.json({ designs: memoryStore });
-  }
+  const { user_id } = req.query;
+  if (!user_id) return res.status(400).json({ error: 'User ID is required' });
+
+  const { data, error } = await supabase
+    .from('generated_models')
+    .select('*')
+    .eq('user_id', user_id)
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ designs: data });
 });
 
 app.post('/api/screenshot', (req, res) => {
-  // Handles saving base64 screenshots from the AR view to DB
-  console.log('[Snapshot] Received AR Snapshot');
-  res.json({ success: true, message: 'Snapshot saved' });
+  res.json({ success: true, message: 'Snapshot functionality pending Supabase Storage' });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 DecoraAI REST API running at http://localhost:${PORT}`);
+  console.log(`🚀 DecoraAI REST API (Supabase) running at http://localhost:${PORT}`);
 });

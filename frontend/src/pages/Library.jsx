@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import { Search, ChevronDown, Heart, Plus, Box } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Library() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [models, setModels] = useState([]);
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/designs` : 'http://localhost:5000/api/designs')
+    if (!user) return;
+    fetch(`${API_BASE_URL}/api/designs?user_id=${user.id}`)
       .then(res => res.json())
       .then(data => setModels(data.designs || []))
       .catch(err => console.error(err));
