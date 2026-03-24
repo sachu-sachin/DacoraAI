@@ -78,20 +78,43 @@ app.post('/api/ai/generate-3d', async (req, res) => {
 
     if (!completedUrl) throw new Error('Generation timed out.');
 
-    // Save to Supabase
-    const { data, error } = await supabase
+    // --- PERMANENT STORAGE FIX ---
+    // 1. Download the GLB from Tripo
+    const glbRes = await fetch(completedUrl);
+    const glbBuffer = await glbRes.arrayBuffer();
+    
+    // 2. Upload to Supabase Storage "models" bucket
+    const fileName = `${user_id}/${Date.now()}.glb`;
+    const { data: storageData, error: storageError } = await supabase.storage
+      .from('models')
+      .upload(fileName, glbBuffer, {
+        contentType: 'model/gltf-binary',
+        upsert: true
+      });
+
+    if (storageError) {
+      console.warn('⚠️ Supabase Storage failed, falling back to Tripo URL:', storageError.message);
+    }
+
+    // 3. Get the Public URL
+    const publicUrl = storageError 
+      ? completedUrl 
+      : supabase.storage.from('models').getPublicUrl(fileName).data.publicUrl;
+
+    // Save metadata to database
+    const { data: dbData, error: dbError } = await supabase
       .from('generated_models')
       .insert([
-        { user_id, prompt, model_url: completedUrl }
+        { user_id, prompt, model_url: publicUrl }
       ])
       .select();
 
-    if (error) throw error;
+    if (dbError) throw dbError;
 
     res.json({
       success: true,
       prompt,
-      modelUrl: completedUrl,
+      modelUrl: publicUrl,
       status: 'completed'
     });
 
