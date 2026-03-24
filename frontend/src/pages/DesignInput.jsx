@@ -17,7 +17,7 @@ async function analyzeImageWithGemini(base64Data, mimeType) {
     return "Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.";
   }
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,7 +72,7 @@ export default function DesignInput() {
   useEffect(() => {
     try {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
-    } catch {}
+    } catch { }
   }, [messages, SESSION_KEY]);
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function DesignInput() {
   const handleClearChat = () => {
     const fresh = [INITIAL_MESSAGE];
     setMessages(fresh);
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(fresh)); } catch {}
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(fresh)); } catch { }
   };
 
   const handleGenerate = () => {
